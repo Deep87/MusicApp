@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   </head> 
   <style type="text/css">
-  	body  {
+    body  {
     background-image: url("http://srivalab.cse.iitk.ac.in/NodeApp/background3.jpg");
     background-color: #cccccc;
     background-repeat: no-repeat;
@@ -34,10 +34,10 @@
     display: block;
 }
 .sidenav h4{
-	color: white;
-	margin-left: 18px;
-	 font-family: 'Bree Serif';
-	 font-weight: bold;
+  color: white;
+  margin-left: 18px;
+   font-family: 'Bree Serif';
+   font-weight: bold;
 }
 
 .main {
@@ -49,36 +49,36 @@
 
 }
 /*.main p,pre,h1{
-		font-family: Arial, Helvetica, sans-serif;
-		color: black;
-		text-transform: capitalize; 
-		display:inline;
-			}*/
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    text-transform: capitalize; 
+    display:inline;
+      }*/
       svg {
     display: block;
     margin-left: 0px
 }
 .inner1{
-	display:inline;
-	text-align: left;
-	font-weight: bold;
-	 font-family: 'Bree Serif';
-	float: left;
-	text-transform: capitalize; 
+  display:inline;
+  text-align: left;
+  font-weight: bold;
+   font-family: 'Bree Serif';
+  float: left;
+  text-transform: capitalize; 
   color: white;
 }
 .inner2{
-	display: inline;
-	 font-family: 'Bree Serif';
-	text-align: left;
-	float: right;
-	font-weight: bold;
-	margin-right: 20px;
-	text-transform: capitalize; 
+  display: inline;
+   font-family: 'Bree Serif';
+  text-align: left;
+  float: right;
+  font-weight: bold;
+  margin-right: 20px;
+  text-transform: capitalize; 
   color:white;
 }
 #p1, #p2{
-	font-size: 25px;
+  font-size: 25px;
 }
 audio { 
    display:none;
@@ -113,20 +113,20 @@ audio {
 }
   </style> 
   <div class="sidenav">
-  	<h4>INSTRUCTIONS</h4>
+    <h4>INSTRUCTIONS</h4>
   <p>The closer two names are, the more melodically similar the songs are.</p>
   <p>Right click on the circles to play the corresponding songs</p>
   <p>Single click on the circles to recentre along the corresponding song</p>
   <p>The circle appearing green is the song currently playing</p>
 </div>
   <body>  
-  	<div class="main">
-  		<div class="inner1" >
-  			 <h1 ><b>Queried Song</b></h1>
-  				<p id="p1"><b>Loading..</b></p>  
-  		</div>
+    <div class="main">
+      <div class="inner1" >
+         <h1 ><b>Queried Song</b></h1>
+          <p id="p1"><b>Loading..</b></p>  
+      </div>
      <div class="inner2">
-     	<h1 ><b>Currently Playing</b></h1>
+      <h1 ><b>Currently Playing</b></h1>
         <p id="p2"><b></b></p>
      </div>
       
@@ -134,12 +134,15 @@ audio {
      
 
       
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
 <script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!--<audio id="audio" src="http://srivalab.cse.iitk.ac.in/NodeApp/song.mp3" ></audio> -->
 <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
 <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="d3-tip.js"></script>
 <!-- <script src="d3-tip.js"></script> -->
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <audio id="audio" controls="controls">
@@ -216,7 +219,7 @@ for(var i=0;i<100;i++)
     data.push({x:x1,y:y1, "name":""+songnames[i].replace(/[_-]/g, " "),dist:Number(row[i])})
     theta=Math.random()*360*(22/7)/180;
   }
-   console.log(data[0].x);
+   //console.log(data[0].x);
    // console.log(data[i]);
 }
 console.log(numsongs)
@@ -251,11 +254,8 @@ var svg = d3.select("body")
     .append("g")
     .attr("id","zoomgroup")
     .call(d3.zoom()
-        .scaleExtent([1, 8])
+        .scaleExtent([1/2, 8])
         .on("zoom", zoom));
-    //.call(zoom);
-    
-     //var circles=svg.append("g");
 svg.append("rect")
     .attr("width", "100%")
     .attr("height", "100%")
@@ -269,7 +269,8 @@ function zoom() {
 
 function transform(t) {
   return function(d) {
-    return "translate(" + t.applyY(d.y) +")";
+    var datacoords=[d.x,d.y];
+    return "translate(" + t.apply(datacoords) +")";
   };
 }
     //.call(zoom);
@@ -290,8 +291,8 @@ function transform(t) {
 var circles=svg.selectAll("circle")
     .data(data)
     .enter()
-    .append("svg:circle")
-           
+    .append("svg:circle");
+     // .attr("transform", transform(d3.zoomIdentity));      
 
 var timer = 0;
 var delay = 400;
@@ -333,7 +334,7 @@ var circleattr=circles
         location.replace("http://srivalab.cse.iitk.ac.in:8086/show?language="+lang+"&song_name="+sname)
       })
     .on("mouseover",function(d,i){
-    	  
+        
         tip.show(d,i);
         svg.append("rect")
     .attr("width", "100%")
@@ -453,25 +454,27 @@ function zoomhandler() {
 }
 function transform2(t) {
   return function(d) {
-    return "translate(" + t.apply(d) + ")";
+    var datacoords=[d.x,d.y];
+    console.log(typeof datacoords)
+    return "translate(" + t.apply(datacoords) + ")";
   };
 }
 function togglePlay(name,i) {
-	if(audio.paused)
-	{
-		document.getElementById("p2").innerHTML=name;
-		resetTimer=true;
+  if(audio.paused)
+  {
+    document.getElementById("p2").innerHTML=name;
+    resetTimer=true;
     double[i]=true;
-		return audio.play()
-	}
-	if(!audio.paused)
-	{
-		 document.getElementById("p2").innerHTML="";
-		 //resetTimer=false;
+    return audio.play()
+  }
+  if(!audio.paused)
+  {
+     document.getElementById("p2").innerHTML="";
+     //resetTimer=false;
      double[i]=false
-		 return audio.pause();
+     return audio.pause();
 
-	}
+  }
   //return audio.paused ? audio.play() : audio.pause();
 };
 }

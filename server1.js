@@ -23,7 +23,7 @@ app.set('views','./views');
     var lang=msg.language
     
     var song=msg.name.replace(/[+]/g, "_");
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect(url, { useNewUrlParser: true },function(err, db) {
   if (err) throw err;
   var dbo = db.db("soura");
   //var myobj = { name: "Company Inc", address: "Highway 37" };
@@ -60,7 +60,28 @@ if(lang=='hindi')
 }
 
 });
+});
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
+ app.get('/', function (req, res) {
+   res.sendFile( __dirname + "/" + "start.html" );
+}) 
+app.get('/search', function (req, res) {
+   res.sendFile( __dirname + "/" + "search.html" );
+}) 
+app.get('/show', function (req, res) {
 
+   res.sendFile( __dirname + "/" + "d3circle.html" );
+   //res.send('<p>Song Name: ' + req.query['song_name']+'</p>');
+})
+var server = http.listen(8086, function () {
+   var host = server.address().address
+   var port = server.address().port
+   console.log("Example app listening at http://%s:%s", host, port)
+
+})
 
 //     var lang=msg.language
 //     var song=msg.name
@@ -193,27 +214,7 @@ if(lang=='hindi')
     
 
     
-  });
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
+  
 //app.use("/public", express.static(__dirname + "/public"));
-app.get('/', function (req, res) {
-   res.sendFile( __dirname + "/" + "start.html" );
-}) 
-app.get('/search', function (req, res) {
-   res.sendFile( __dirname + "/" + "search.html" );
-}) 
-app.get('/show', function (req, res) {
 
-   res.sendFile( __dirname + "/" + "d3circle.html" );
-   //res.send('<p>Song Name: ' + req.query['song_name']+'</p>');
-})
-var server = http.listen(8086, function () {
-   var host = server.address().address
-   var port = server.address().port
-   console.log("Example app listening at http://%s:%s", host, port)
-
-})
 

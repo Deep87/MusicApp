@@ -83,34 +83,6 @@
 audio { 
    display:none;
 }
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
-}
-
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-}
-
-/* Style northward tooltips differently */
-.d3-tip.n:after {
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-}
 .overlay {
   fill: none;
   pointer-events: all;
@@ -122,6 +94,34 @@ audio {
   stroke: #000;
   shape-rendering: crispEdges;
 }
+.d3-tip {
+      line-height: 1;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+ 
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {
+      box-sizing: border-box;
+      display: inline;
+      font-size: 10px;
+      width: 100%;
+      line-height: 1;
+      color: rgba(0, 0, 0, 0.8);
+      content: "\25BC";
+      position: absolute;
+      text-align: center;
+    }
+ 
+    /* Style northward tooltips specifically */
+    .d3-tip.n:after {
+      margin: -2px 0 0 0;
+      top: 100%;
+      left: 0;
+    }
 
   </style> 
   <div class="sidenav">
@@ -148,16 +148,16 @@ audio {
       
 <!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!--<audio id="audio" src="http://srivalab.cse.iitk.ac.in/NodeApp/song.mp3" ></audio> -->
 <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
 <script src = "https://d3js.org/d3-zoom.v1.min.js"></script>
 <script src="https://d3js.org/d3.v4.js"></script>
     <script src="d3-tip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
+
 <!-- <script src="d3-tip.js"></script> -->
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<!--<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>-->
 <audio id="audio" controls="controls">
   <source id="audioSource" src=""></source>
   Your browser does not support the audio format.
@@ -202,6 +202,12 @@ var data2=[]
 var increase=((360)/18)*(22/7)/180;
 var a=""
 var c=0
+var songnames=[]
+var combo=[];
+var row=[]
+var old=1;
+var scale=500;
+var gmax;
 socket.on('chat message',function(msg){
 var audio = document.getElementById('audio');
 
@@ -210,46 +216,46 @@ var audio = document.getElementById('audio');
     {
       song=msg.name
       song=song.replace(/[_-]/g, " ");
-      var row=msg.content.split(",")
+      row=msg.content.split(",")
       document.getElementById("p1").innerHTML=song;
-    var songnames=msg.songs.split(",");
+    songnames=msg.songs.split(",");
     var c=0   
         
       console.log(row.length)
       var length=row.length;
     //console.log(textbyline.length)
-    var combo=[];
+    
     for(var i=0;i<length;i++)
     {
     	combo.push({"name":""+songnames[i].replace(/[_-]/g, " "),dist:Number(row[i])});
     }
+    gmax=combo[length-1].dist;
     combo.sort(custom_compare);
-    var windowsize=20;
-    var low=1150;
+    var windowsize=50;
+    var low=1050;
     var high=low+windowsize;
 data.push({x:800,y:500, "name":""+msg.name.replace(/[_-]/g, " "),dist:0})
 //data2.push({x:500,y:500, "name":""+msg.name.replace(/[_-]/g, " "),dist:0})
 var numsongs=0
-var max=0
+var max=combo[high].dist;
+var min=combo[low].dist;
 for(var i=low;i<high;i++)
 {
     //theta=Math.floor(Math.random() * (44/7)) + 1;
-      if(Number(row[i])>max)
-        max=Number(row[i])
-      numsongs++
     // x1=1000+(Number(row[i])-70)*Math.cos(theta)*2.5
     // y1=400-(Number(row[i])-70)*Math.sin(theta)*2.5
-    x1=800+(Number(row[i]-100)*Math.cos(theta))*10
-    y1=500+(Number(row[i]-100)*Math.sin(theta))*10
+    x1=800+(Number(combo[i].dist-min+0.25)*Math.cos(theta))*scale
+    y1=500+(Number(combo[i].dist-min+0.25)*Math.sin(theta))*scale
     // x2=500+(Number(row[i]-100)*Math.cos(theta))*3
     // y2=500+(Number(row[i]-100)*Math.sin(theta))*3
-    data.push({x:x1,y:y1, "name":""+songnames[i].replace(/[_-]/g, " "),dist:Number(row[i])})
+    data.push({x:x1,y:y1, "name":""+combo[i].name.replace(/[_-]/g, " "),dist:combo[i].dist})
     //data2.push({x:x2,y:y2, "name":""+songnames[i].replace(/[_-]/g, " "),dist:Number(row[i])})
     theta=Math.random()*360*(22/7)/180;
   
    //console.log(data[0].x);
    // console.log(data[i]);
 }
+console.log(min)
 console.log(max)
 var myAudio = document.getElementById("audio");
 var margin = {top: 10, right: -200, bottom: 0, left: 800};
@@ -257,19 +263,19 @@ var margin = {top: 10, right: -200, bottom: 0, left: 800};
 var width = 2000 - margin.left - margin.right,
     height = 810 - margin.top - margin.bottom;
 
-d3.selection.prototype.moveToFront = function() {  
-      return this.each(function(){
-        this.parentNode.appendChild(this);
-      });
-    };
-d3.selection.prototype.moveToBack = function() {  
-        return this.each(function() { 
-            var firstChild = this.parentNode.firstChild; 
-            if (firstChild) { 
-                this.parentNode.insertBefore(this, firstChild); 
-            } 
-        });
-    };
+// d3.selection.prototype.moveToFront = function() {  
+//       return this.each(function(){
+//         this.parentNode.appendChild(this);
+//       });
+//     };
+// d3.selection.prototype.moveToBack = function() {  
+//         return this.each(function() { 
+//             var firstChild = this.parentNode.firstChild; 
+//             if (firstChild) { 
+//                 this.parentNode.insertBefore(this, firstChild); 
+//             } 
+//         });
+//     };
 var x = d3.scaleLinear()
     .domain([0, width])
     .range([0, width]);
@@ -278,9 +284,18 @@ var y = d3.scaleLinear()
     .domain([0, height])
     .range([height, 0]);
 var zoom = d3.zoom()
-    .scaleExtent([1, 20])
+    .scaleExtent([1/8, 5])
     .extent([[0, 0], [width, height]])
-    .on("zoom", zoomed);
+    .on("start", function(){
+    	zoomed(low,high);
+    })
+    .on("zoom",zs)
+    .on("end",function(){
+      console.log("zoom end")
+    })
+    // .on("zoomend",finction(){
+    // 	zoomend();
+    // });
 
 var svg = d3.select("body")
     .attr("align","center")
@@ -311,7 +326,12 @@ for(var i=0;i<100;i++)
 {
   playing.push(false)
 }
-
+var tool_tip = d3.tip()
+      .attr("class", "d3-tip")
+      .offset([-8, 0])
+      .html(function(d,i) { 
+      	return "<strong>Name:</strong> <span style='color:white'>" + d.name + "</span> <br><strong>Similarity:</strong> <span style='color:white'>" + (1-(d.dist/gmax))+ "</span> ";});
+    svg.call(tool_tip);
 var circleattr=circles
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
@@ -335,11 +355,10 @@ var circleattr=circles
       })
     .on("mouseover",function(d,i){
         console.log(10)
-        //tip.show(d,i);
-         d3.select(this).moveToFront();
+        tool_tip.show(d,i);
+        // d3.select(this).moveToFront();
         d3.select(this)
           .transition()
-          .duration(250)
           .attr("r", 15)
           .style("cursor", "pointer")
           .style("fill",function(){
@@ -354,12 +373,12 @@ var circleattr=circles
     })
     })
     .on("mouseout",function(d,i){
-      //tip.hide();
+      tool_tip.hide();
     	console.log(15)
-        d3.select(this).moveToBack();
+        //d3.select(this).moveToBack();
         d3.select(this)
           .transition()
-          .duration(250)
+          
           .attr("r",function(){
         if(i!=c)
             return 8
@@ -420,19 +439,58 @@ setTimeout(function() {
         
 }, delayInMilliseconds);
         })
-    function zoomed() {
+    function zoomed(l,h) {
+      console.log("zoom")
   //circles.attr("transform", transform(d3.event.transform));
   var new_xScale = d3.event.transform.rescaleX(x);
     var new_yScale = d3.event.transform.rescaleY(y);
     circles.attr('cx', function(d) {return new_xScale(d.x)})
      .attr('cy', function(d) {return new_yScale(d.y)});
-     var browserZoomLevel = Math.round(window.devicePixelRatio * 100);
-     console.log(browserZoomLevel)
+     // var browserZoomLevel = Math.round(window.devicePixelRatio * 100);
+     // console.log(browserZoomLevel)
+     var change=false;
      k = d3.event.transform.k;//zoom level
      console.log(k);
-     if(k<2)
-      circles.data(data2);
-    else circles.data(data);
+     if(Math.abs(old-k)>0.5)
+      change=true;
+    if(change==true)
+    { var low=l
+     var high=h;
+     if(k-old)
+     {
+      low=low-500;
+     }
+     if(k<1)
+     {
+      low=low+500;
+     }
+     data.length=0
+     data.push({x:800,y:500, "name":""+song.replace(/[_-]/g, " "),dist:0})
+     for(var i=low;i<high;i++)
+  {
+    //theta=Math.floor(Math.random() * (44/7)) + 1;
+      //console.log(i)
+    // x1=1000+(Number(row[i])-70)*Math.cos(theta)*2.5
+    // y1=400-(Number(row[i])-70)*Math.sin(theta)*2.5
+    x1=800+(Number(combo[i].dist-combo[low].dist+0.25)*Math.cos(theta))*500
+    y1=500+(Number(combo[i].dist-combo[low].dist+0.25)*Math.sin(theta))*500
+    // x2=500+(Number(row[i]-100)*Math.cos(theta))*3
+    // y2=500+(Number(row[i]-100)*Math.sin(theta))*3
+    data.push({x:x1,y:y1, "name":""+combo[i].name.replace(/[_-]/g, " "),dist:Number(combo[i].dist)})
+    //data2.push({x:x2,y:y2, "name":""+songnames[i].replace(/[_-]/g, " "),dist:Number(row[i])})
+    theta=Math.random()*360*(22/7)/180;
+  
+   //console.log(data[0].x);
+   // console.log(data[i]);
+  }
+    circles.data(data);
+   }
+     old=k;
+     //console.log(low)
+     
+}
+function zs(){
+  console.log("zoom start");
 }
 function toTitleCase(str)
 {
